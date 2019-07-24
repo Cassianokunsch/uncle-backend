@@ -1,0 +1,24 @@
+scalar DateTime
+scalar UUID
+
+type Query {
+  info: String!
+  sellers: [Seller!]
+}
+
+type Mutation {
+  signUp(email: String!, password: String!, name: String!): AuthPayload!
+  login(email: String!, password: String!): AuthPayload
+}
+
+type AuthPayload {
+  token: String
+  seller: Seller
+  info: String!
+}
+
+type Seller {
+  id: UUID!
+  email: String!
+  name: String!
+}
