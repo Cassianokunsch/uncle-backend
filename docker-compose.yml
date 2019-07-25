@@ -1,3 +1,5 @@
+# NAO ESTOU USANDO MAIS
+
 version: '3.7'
 services:
   prisma:

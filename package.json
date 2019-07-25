@@ -9,7 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node src/index.ts",
     "dev": "nodemon -r dotenv/config src/index.ts",
-    "prismad": "prisma deploy -e ./.env"
+    "prisma:dev": "prisma deploy -e ./.env",
+    "prisma:prod": "prisma deploy -e ./.env.prod"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
