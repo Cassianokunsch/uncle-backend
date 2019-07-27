@@ -2,23 +2,59 @@ scalar DateTime
 scalar UUID
 
 type Query {
-  info: String!
+  myCustomers: [Customer!]
   sellers: [Seller!]
+  states: [State!]
+  me: Seller!
 }
 
 type Mutation {
   signUp(email: String!, password: String!, name: String!): AuthPayload!
-  login(email: String!, password: String!): AuthPayload
+  login(email: String!, password: String!): AuthPayload!
+  addCustomer(
+    companyName: String!
+    email: String
+    mainContactName: String
+    note: String
+    landline: String
+    cellPhone: String
+    address: String
+    city: String!
+    stateRegistration: String
+    cpfCnpj: String!
+    state: UUID!
+  ): Customer!
 }
 
 type AuthPayload {
   token: String
   seller: Seller
-  info: String!
 }
 
 type Seller {
   id: UUID!
   email: String!
   name: String!
+  customers: [Customer!]
+}
+
+type State {
+  id: UUID!
+  name: String!
+  shortName: String!
+}
+
+type Customer {
+  id: UUID!
+  companyName: String!
+  email: String
+  mainContactName: String
+  note: String
+  landline: String
+  cellPhone: String
+  address: String
+  city: String!
+  stateRegistration: String
+  cpfCnpj: String!
+  state: State!
 }

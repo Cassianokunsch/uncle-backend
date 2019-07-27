@@ -3,7 +3,6 @@ type Seller {
   email: String! @unique
   name: String!
   password: String!
-
   customers: [Customer!]!
 
   createdAt: DateTime! @createdAt
@@ -23,10 +22,9 @@ type Customer {
   city: String
   stateRegistration: String
   cpfCnpj: String! @unique
-
-  state: State!
+  state: State! @db(name: "state_id") @relation(link: INLINE)
   commercialVisits: [CommercialVisit!]!
-  seller: Seller! @db(name: "saller_id") @relation(link: INLINE)
+  seller: Seller! @db(name: "seller_id") @relation(link: INLINE)
 
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
@@ -48,7 +46,6 @@ type CommercialVisit {
   visitDate: DateTime!
   contactPerson: String!
   description: String!
-
   seller: Seller! @db(name: "seller_id") @relation(link: INLINE)
   customer: Customer! @db(name: "customer_id") @relation(link: INLINE)
 

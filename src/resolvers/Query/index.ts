@@ -1,7 +1,9 @@
-import info from './Seller';
+import sellers from './seller';
+import states from './state';
 
 const Query = {
-  ...info,
+  ...sellers,
+  ...states,
 };
 
 export default Query;

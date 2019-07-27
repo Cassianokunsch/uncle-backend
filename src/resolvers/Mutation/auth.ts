@@ -6,16 +6,13 @@ import { sign } from 'jsonwebtoken';
 interface AuthPayLoad {
   token?: string;
   seller?: Seller;
-  info: string;
 }
 
 const signUp = async (parent: any, args, context: Context): Promise<AuthPayLoad> => {
   const emailInUse: boolean = await context.prisma.$exists.seller({ email: args.email });
 
   if (emailInUse) {
-    return {
-      info: 'Email is already in use!',
-    };
+    throw Error('Email is already in use!');
   }
 
   const password: string = await hash(args.password, 10);
@@ -24,23 +21,20 @@ const signUp = async (parent: any, args, context: Context): Promise<AuthPayLoad>
   return {
     token: sign({ sellerId: seller.id }, process.env.APP_SECRET),
     seller,
-    info: 'Seller successfully created!',
   };
 };
 
-const login = async (parent, args, context: Context): Promise<AuthPayLoad> => {
-  const seller: Seller = await context.prisma.seller({ email: args.email });
+const login = async (parent, { email, password }, context: Context): Promise<AuthPayLoad> => {
+  const seller: Seller = await context.prisma.seller({ email: email });
+
   if (!seller) {
-    return {
-      info: 'Seller not found!',
-    };
+    throw Error('Invalid Credentials!');
   }
 
-  const valid = await compare(args.password, seller.password);
+  const valid = await compare(password, seller.password);
+
   if (!valid) {
-    return {
-      info: 'Invalid password!',
-    };
+    throw Error('Invalid Credentials!');
   }
 
   const token: string = sign({ userId: seller.id }, process.env.APP_SECRET);
@@ -48,7 +42,6 @@ const login = async (parent, args, context: Context): Promise<AuthPayLoad> => {
   return {
     token,
     seller,
-    info: 'Successfully logged in!',
   };
 };
 
