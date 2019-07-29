@@ -1,5 +1,5 @@
 import { Seller } from '../../generated/prisma-client';
-import { Context } from '../../utils';
+import { Context, parseEmail } from '../../utils';
 import { hash, compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 
@@ -8,15 +8,21 @@ interface AuthPayLoad {
   seller?: Seller;
 }
 
-const signUp = async (parent: any, args, context: Context): Promise<AuthPayLoad> => {
-  const emailInUse: boolean = await context.prisma.$exists.seller({ email: args.email });
+const signUp = async (parent: any, args, ctx: Context): Promise<AuthPayLoad> => {
+  const email = args.email.trim();
+  const name = args.name.trim();
+  const password = args.password;
 
-  if (emailInUse) {
-    throw Error('Email is already in use!');
-  }
+  if (!email || !password || !name) throw Error('Fill in all fields!');
 
-  const password: string = await hash(args.password, 10);
-  const seller: Seller = await context.prisma.createSeller({ ...args, password });
+  if (!parseEmail.test(email)) throw Error('Bad email format!');
+
+  const emailInUse: boolean = await ctx.prisma.$exists.seller({ email });
+
+  if (emailInUse) throw Error('Email is already in use!');
+
+  const passwordHash: string = await hash(password, 10);
+  const seller: Seller = await ctx.prisma.createSeller({ email, password: passwordHash, name });
 
   return {
     token: sign({ sellerId: seller.id }, process.env.APP_SECRET),
@@ -24,20 +30,21 @@ const signUp = async (parent: any, args, context: Context): Promise<AuthPayLoad>
   };
 };
 
-const login = async (parent, { email, password }, context: Context): Promise<AuthPayLoad> => {
-  const seller: Seller = await context.prisma.seller({ email: email });
+const login = async (parent, args, ctx: Context): Promise<AuthPayLoad> => {
+  const email = args.email.trim();
+  const password = args.password;
 
-  if (!seller) {
-    throw Error('Invalid Credentials!');
-  }
+  if (!parseEmail.test(email)) throw Error('Bad email format!');
+
+  const seller: Seller = await ctx.prisma.seller({ email });
+
+  if (!seller) throw Error('Invalid Credentials!');
 
   const valid = await compare(password, seller.password);
 
-  if (!valid) {
-    throw Error('Invalid Credentials!');
-  }
+  if (!valid) throw Error('Invalid Credentials!');
 
-  const token: string = sign({ userId: seller.id }, process.env.APP_SECRET);
+  const token: string = sign({ sellerId: seller.id }, process.env.APP_SECRET);
 
   return {
     token,

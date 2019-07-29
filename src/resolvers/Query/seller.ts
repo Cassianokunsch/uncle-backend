@@ -1,20 +1,20 @@
-import { Context, getUserId } from '../../utils';
+import { Context, getSellerId } from '../../utils';
 import { Seller } from '../../generated/prisma-client';
 import { Customer } from '../../generated/prisma-client';
 
-const sellers = async (parent, args, context: Context): Promise<Seller[]> => {
-  const sellers: Seller[] = await context.prisma.sellers({});
+const sellers = async (parent, args, ctx: Context): Promise<Seller[]> => {
+  const sellers: Seller[] = await ctx.prisma.sellers({});
   return sellers;
 };
 
-const me = (parent, args, ctx: Context): Promise<Seller> => {
-  const id = getUserId(ctx);
-  return ctx.prisma.seller({ id });
+const me = async (parent, args, ctx: Context): Promise<Seller> => {
+  const id = getSellerId(ctx);
+  return await ctx.prisma.seller({ id });
 };
 
-const myCustomers = async (parent, args, context: Context): Promise<Customer[]> => {
-  const id = getUserId(context);
-  const customers = await context.prisma.seller({ id }).customers();
+const myCustomers = async (parent, args, ctx: Context): Promise<Customer[]> => {
+  const id = getSellerId(ctx);
+  const customers = await ctx.prisma.seller({ id }).customers();
   return customers;
 };
 

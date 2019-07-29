@@ -1,11 +1,19 @@
 import { rule } from 'graphql-shield';
-import { getUserId, Context } from '../utils';
+import { getSellerId, Context } from '../utils';
 
 const rules = {
-  isAuthenticatedUser: rule()((parent, args, context: Context): boolean => {
-    const userId = getUserId(context);
-    return Boolean(userId);
-  }),
+  isAuthenticatedSeller: rule()(
+    async (parent, args, ctx: Context): Promise<boolean> => {
+      const sellerId = getSellerId(ctx);
+
+      if (sellerId) {
+        const sellerExist = await ctx.prisma.$exists.seller({ id: sellerId });
+        return sellerExist;
+      }
+
+      return false;
+    },
+  ),
 };
 
-export const Query = rules.isAuthenticatedUser;
+export const Query = rules.isAuthenticatedSeller;
